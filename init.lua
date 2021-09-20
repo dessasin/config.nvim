@@ -18,37 +18,52 @@ vim.api.nvim_exec(
 local use = require('packer').use
 require('packer').startup(function()
   use 'wbthomason/packer.nvim' -- Package manager
-  use 'tpope/vim-fugitive' -- Git commands in nvim
-  use 'tpope/vim-rhubarb' -- Fugitive-companion to interact with github
+  use 'tpope/vim-fugitive' -- Git commands in nvm
   use 'tpope/vim-commentary' -- "gc" to comment visual regions/lines
   use 'ludovicchabant/vim-gutentags' -- Automatic tags management
-  -- UI to select things (files, grep results, open buffers...)
-  use { 'nvim-telescope/telescope.nvim', requires = { 'nvim-lua/plenary.nvim' } }
-  use 'joshdick/onedark.vim' -- Theme inspired by Atom
-  use 'itchyny/lightline.vim' -- Fancier statusline
-  -- Add indentation guides even on blank lines
-  use 'lukas-reineke/indent-blankline.nvim'
-  -- Add git related info in the signs columns and popups
   use { 'lewis6991/gitsigns.nvim', requires = { 'nvim-lua/plenary.nvim' } }
-  -- Highlight, edit, and navigate code using a fast incremental parsing library
-  use 'nvim-treesitter/nvim-treesitter'
-  -- Additional textobjects for treesitter
-  use 'nvim-treesitter/nvim-treesitter-textobjects'
   use 'neovim/nvim-lspconfig' -- Collection of configurations for built-in LSP client
   use 'hrsh7th/nvim-cmp' -- Autocompletion plugin
   use 'hrsh7th/cmp-nvim-lsp'
   use 'saadparwaiz1/cmp_luasnip'
   use 'L3MON4D3/LuaSnip' -- Snippets plugin
-end)
+  use 'wakatime/vim-wakatime'
+  use 'ayu-theme/ayu-vim'
+  use 'fenetikm/falcon'
+  use 'norcalli/nvim-colorizer.lua'
+  use 'airblade/vim-rooter'
+  use 'mattn/emmet-vim'
+  use {'nvim-telescope/telescope.nvim',  requires = {  {'nvim-lua/plenary.nvim'},  {"nvim-telescope/telescope-fzf-native.nvim",run = "make"} }}
+  use {'kyazdani42/nvim-tree.lua',requires = 'kyazdani42/nvim-web-devicons'}
+  use { 'nvim-treesitter/nvim-treesitter', run = ':TSUpdate' }
+  use 'p00f/nvim-ts-rainbow'
+  use 'lukas-reineke/indent-blankline.nvim'
+  use 'JoosepAlviste/nvim-ts-context-commentstring'
+  use 'romgrk/nvim-treesitter-context'
+  use 'romgrk/barbar.nvim'
+  use {'famiu/feline.nvim',requires = { {'lewis6991/gitsigns.nvim',requires = { 'nvim-lua/plenary.nvim' },config = function()require('gitsigns').setup()end},'kyazdani42/nvim-web-devicons'}}end)
+use {
+    's1n7ax/nvim-terminal',
+    config = function()
+        vim.o.hidden = true
+        require('nvim-terminal').setup()
+    end,
+}
+
+
+---------------------
+---- SETTINGS -------
+---------------------
 
 --Incremental live completion (note: this is now a default on master)
 vim.o.inccommand = 'nosplit'
 
 --Set highlight on search
 vim.o.hlsearch = false
-
 --Make line numbers default
 vim.wo.number = true
+vim.wo.relativenumber = true
+vim.wo.wrap = true
 
 --Do not save when switching buffers (note: this is now a default on master)
 vim.o.hidden = true
@@ -67,13 +82,12 @@ vim.o.ignorecase = true
 vim.o.smartcase = true
 
 --Decrease update time
-vim.o.updatetime = 250
+vim.o.updatetime = 100
 vim.wo.signcolumn = 'yes'
 
 --Set colorscheme (order is important here)
 vim.o.termguicolors = true
-vim.g.onedark_terminal_italics = 2
-vim.cmd [[colorscheme onedark]]
+vim.cmd [[colorscheme falcon]]
 
 --Set statusbar
 vim.g.lightline = {
@@ -81,15 +95,9 @@ vim.g.lightline = {
   active = { left = { { 'mode', 'paste' }, { 'gitbranch', 'readonly', 'filename', 'modified' } } },
   component_function = { gitbranch = 'fugitive#head' },
 }
-
---Remap space as leader key
-vim.api.nvim_set_keymap('', '<Space>', '<Nop>', { noremap = true, silent = true })
-vim.g.mapleader = ' '
-vim.g.maplocalleader = ' '
-
 --Remap for dealing with word wrap
-vim.api.nvim_set_keymap('n', 'k', "v:count == 0 ? 'gk' : 'k'", { noremap = true, expr = true, silent = true })
-vim.api.nvim_set_keymap('n', 'j', "v:count == 0 ? 'gj' : 'j'", { noremap = true, expr = true, silent = true })
+-- vim.api.nvim_set_keymap('n', 'k', "v:count == 0 ? 'gk' : 'k'", opts)
+-- vim.api.nvim_set_keymap('n', 'j', "v:count == 0 ? 'gj' : 'j'", opts)
 
 -- Highlight on yank
 vim.api.nvim_exec(
@@ -134,17 +142,6 @@ require('telescope').setup {
     },
   },
 }
---Add leader shortcuts
-vim.api.nvim_set_keymap('n', '<leader><space>', [[<cmd>lua require('telescope.builtin').buffers()<CR>]], { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', '<leader>sf', [[<cmd>lua require('telescope.builtin').find_files({previewer = false})<CR>]], { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', '<leader>sb', [[<cmd>lua require('telescope.builtin').current_buffer_fuzzy_find()<CR>]], { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', '<leader>sh', [[<cmd>lua require('telescope.builtin').help_tags()<CR>]], { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', '<leader>st', [[<cmd>lua require('telescope.builtin').tags()<CR>]], { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', '<leader>sd', [[<cmd>lua require('telescope.builtin').grep_string()<CR>]], { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', '<leader>sp', [[<cmd>lua require('telescope.builtin').live_grep()<CR>]], { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', '<leader>so', [[<cmd>lua require('telescope.builtin').tags{ only_current_buffer = true }<CR>]], { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', '<leader>?', [[<cmd>lua require('telescope.builtin').oldfiles()<CR>]], { noremap = true, silent = true })
-
 -- Treesitter configuration
 -- Parsers must be installed manually via :TSInstall
 require('nvim-treesitter.configs').setup {
@@ -175,6 +172,7 @@ require('nvim-treesitter.configs').setup {
         ['ic'] = '@class.inner',
       },
     },
+    ensure_installed = {"html","javascript","lua","css","fish","json","php","rust","tsx","typescript","vue","c"},
     move = {
       enable = true,
       set_jumps = true, -- whether to set jumps in the jumplist
@@ -200,30 +198,7 @@ require('nvim-treesitter.configs').setup {
 
 -- LSP settings
 local nvim_lsp = require 'lspconfig'
-local on_attach = function(_, bufnr)
-  vim.api.nvim_buf_set_option(bufnr, 'omnifunc', 'v:lua.vim.lsp.omnifunc')
 
-  local opts = { noremap = true, silent = true }
-  vim.api.nvim_buf_set_keymap(bufnr, 'n', 'gD', '<Cmd>lua vim.lsp.buf.declaration()<CR>', opts)
-  vim.api.nvim_buf_set_keymap(bufnr, 'n', 'gd', '<Cmd>lua vim.lsp.buf.definition()<CR>', opts)
-  vim.api.nvim_buf_set_keymap(bufnr, 'n', 'K', '<Cmd>lua vim.lsp.buf.hover()<CR>', opts)
-  vim.api.nvim_buf_set_keymap(bufnr, 'n', 'gi', '<cmd>lua vim.lsp.buf.implementation()<CR>', opts)
-  vim.api.nvim_buf_set_keymap(bufnr, 'n', '<C-k>', '<cmd>lua vim.lsp.buf.signature_help()<CR>', opts)
-  vim.api.nvim_buf_set_keymap(bufnr, 'n', '<leader>wa', '<cmd>lua vim.lsp.buf.add_workspace_folder()<CR>', opts)
-  vim.api.nvim_buf_set_keymap(bufnr, 'n', '<leader>wr', '<cmd>lua vim.lsp.buf.remove_workspace_folder()<CR>', opts)
-  vim.api.nvim_buf_set_keymap(bufnr, 'n', '<leader>wl', '<cmd>lua print(vim.inspect(vim.lsp.buf.list_workspace_folders()))<CR>', opts)
-  vim.api.nvim_buf_set_keymap(bufnr, 'n', '<leader>D', '<cmd>lua vim.lsp.buf.type_definition()<CR>', opts)
-  vim.api.nvim_buf_set_keymap(bufnr, 'n', '<leader>rn', '<cmd>lua vim.lsp.buf.rename()<CR>', opts)
-  vim.api.nvim_buf_set_keymap(bufnr, 'n', 'gr', '<cmd>lua vim.lsp.buf.references()<CR>', opts)
-  vim.api.nvim_buf_set_keymap(bufnr, 'n', '<leader>ca', '<cmd>lua vim.lsp.buf.code_action()<CR>', opts)
-  -- vim.api.nvim_buf_set_keymap(bufnr, 'v', '<leader>ca', '<cmd>lua vim.lsp.buf.range_code_action()<CR>', opts)
-  vim.api.nvim_buf_set_keymap(bufnr, 'n', '<leader>e', '<cmd>lua vim.lsp.diagnostic.show_line_diagnostics()<CR>', opts)
-  vim.api.nvim_buf_set_keymap(bufnr, 'n', '[d', '<cmd>lua vim.lsp.diagnostic.goto_prev()<CR>', opts)
-  vim.api.nvim_buf_set_keymap(bufnr, 'n', ']d', '<cmd>lua vim.lsp.diagnostic.goto_next()<CR>', opts)
-  vim.api.nvim_buf_set_keymap(bufnr, 'n', '<leader>q', '<cmd>lua vim.lsp.diagnostic.set_loclist()<CR>', opts)
-  vim.api.nvim_buf_set_keymap(bufnr, 'n', '<leader>so', [[<cmd>lua require('telescope.builtin').lsp_document_symbols()<CR>]], opts)
-  vim.cmd [[ command! Format execute 'lua vim.lsp.buf.formatting()' ]]
-end
 
 -- nvim-cmp supports additional completion capabilities
 local capabilities = vim.lsp.protocol.make_client_capabilities()
@@ -237,12 +212,9 @@ for _, lsp in ipairs(servers) do
     capabilities = capabilities,
   }
 end
-
--- Example custom server
 local sumneko_root_path = vim.fn.getenv 'HOME' .. '/.local/bin/sumneko_lua' -- Change to your sumneko root installation
 local sumneko_binary = sumneko_root_path .. '/bin/linux/lua-language-server'
 
--- Make runtime files discoverable to the server
 local runtime_path = vim.split(package.path, ';')
 table.insert(runtime_path, 'lua/?.lua')
 table.insert(runtime_path, 'lua/?/init.lua')
@@ -324,3 +296,118 @@ cmp.setup {
     { name = 'luasnip' },
   },
 }
+
+
+
+
+
+
+---------------------------
+--------MAPPINGS ----------
+---------------------------
+
+--Remap space as leader key
+vim.api.nvim_set_keymap('', '<Space>', '<Nop>', { noremap = true, silent = true })
+vim.g.mapleader = ' '
+vim.g.maplocalleader = ' '
+
+local map = vim.api.nvim_set_keymap
+local opts = { noremap = true, silent = true }
+--
+--Add leader shortcuts
+map('n', '<leader><space>', [[<cmd>lua require('telescope.builtin').buffers()<CR>]], opts)
+map('n', '<leader>ff', [[<cmd>lua require('telescope.builtin').find_files({previewer = false})<CR>]], opts)
+map('n', '<leader>fb', [[<cmd>lua require('telescope.builtin').current_buffer_fuzzy_find()<CR>]], opts)
+map('n', '<leader>fh', [[<cmd>lua require('telescope.builtin').help_tags()<CR>]], opts)
+map('n', '<leader>ft', [[<cmd>lua require('telescope.builtin').tags()<CR>]], opts)
+map('n', '<leader>fd', [[<cmd>lua require('telescope.builtin').grep_string()<CR>]], opts)
+map('n', '<leader>fp', [[<cmd>lua require('telescope.builtin').live_grep()<CR>]], opts)
+map('n', '<leader>fc', [[<cmd>lua require('telescope.builtin').tags{ only_current_buffer = true }<CR>]],opts)
+map('n', '<leader>fo', [[<cmd>lua require('telescope.builtin').oldfiles()<CR>]], opts)
+map('n', '<leader>w', ':w<CR>', opts)
+map('n', '<leader>wq', ':wq<CR>', opts)
+map('n', '<leader>q', ':q<CR>', opts)
+map('n', '<leader>qq', ':q!<CR>', opts)
+
+map('n', '<TAB>', ':BufferPrevious<CR>', opts)
+map('n', '<S-TAB>', ':BufferNext<CR>', opts) map('n', '<A-1>', ':BufferGoto 1<CR>', opts)
+map('n', '<A-2>', ':BufferGoto 2<CR>', opts)
+map('n', '<A-3>', ':BufferGoto 3<CR>', opts)
+map('n', '<A-4>', ':BufferGoto 4<CR>', opts)
+map('n', '<A-5>', ':BufferGoto 5<CR>', opts)
+map('n', '<A-6>', ':BufferGoto 6<CR>', opts)
+map('n', '<A-7>', ':BufferGoto 7<CR>', opts)
+map('n', '<A-8>', ':BufferGoto 8<CR>', opts)
+map('n', '<A-9>', ':BufferGoto 9<CR>', opts)
+map('n', '<A-0>', ':BufferLast<CR>', opts)
+map('n', '<A-c>', ':BufferClose<CR>', opts)
+map('n', '<A-e>', ':NvimTreeToggle<CR>', opts)
+
+local on_attach = function(_, bufnr)
+  map(bufnr, 'omnifunc', 'v:lua.vim.lsp.omnifunc')
+  map(bufnr, 'n', 'gD', '<Cmd>lua vim.lsp.buf.declaration()<CR>', opts)
+  map(bufnr, 'n', 'gd', '<Cmd>lua vim.lsp.buf.definition()<CR>', opts)
+  map(bufnr, 'n', 'K', '<Cmd>lua vim.lsp.buf.hover()<CR>', opts)
+  map(bufnr, 'n', 'gi', '<cmd>lua vim.lsp.buf.implementation()<CR>', opts)
+  map(bufnr, 'n', '<C-k>', '<cmd>lua vim.lsp.buf.signature_help()<CR>', opts)
+  map(bufnr, 'n', '<leader>wa', '<cmd>lua vim.lsp.buf.add_workspace_folder()<CR>', opts)
+  map(bufnr, 'n', '<leader>wr', '<cmd>lua vim.lsp.buf.remove_workspace_folder()<CR>', opts)
+  map(bufnr, 'n', '<leader>wl', '<cmd>lua print(vim.inspect(vim.lsp.buf.list_workspace_folders()))<CR>', opts)
+  map(bufnr, 'n', '<leader>D', '<cmd>lua vim.lsp.buf.type_definition()<CR>', opts)
+  map(bufnr, 'n', '<leader>rn', '<cmd>lua vim.lsp.buf.rename()<CR>', opts)
+  map(bufnr, 'n', 'gr', '<cmd>lua vim.lsp.buf.references()<CR>', opts)
+  map(bufnr, 'n', '<leader>ca', '<cmd>lua vim.lsp.buf.code_action()<CR>', opts)
+  map(bufnr, 'n', '<leader>e', '<cmd>lua vim.lsp.diagnostic.show_line_diagnostics()<CR>', opts)
+  map(bufnr, 'n', '[d', '<cmd>lua vim.lsp.diagnostic.goto_prev()<CR>', opts)
+  map(bufnr, 'n', ']d', '<cmd>lua vim.lsp.diagnostic.goto_next()<CR>', opts)
+  map(bufnr, 'n', '<leader>q', '<cmd>lua vim.lsp.diagnostic.set_loclist()<CR>', opts)
+  map(bufnr, 'n', '<leader>so', [[<cmd>lua require('telescope.builtin').lsp_document_symbols()<CR>]], opts)
+  vim.cmd [[ command! Format execute 'lua vim.lsp.buf.formatting()' ]]
+end
+
+
+map('n', '<leader>t', ':lua NTGlobal["terminal"]:toggle()<CR>', opts)
+map('n', '<leader>1', ':lua NTGlobal["terminal"]:open(1)<CR>', opts)
+map('n', '<leader>2', ':lua NTGlobal["terminal"]:open(2)<CR>', opts)
+map('n', '<leader>3', ':lua NTGlobal["terminal"]:open(3)<CR>', opts)
+map('n', '<leader>4', ':lua NTGlobal["terminal"]:open(4)<CR>', opts)
+map('n', '<leader>5', ':lua NTGlobal["terminal"]:open(5)<CR>', opts)
+map('n', '<leader>6', ':lua NTGlobal["terminal"]:open(6)<CR>', opts)
+map('n', '<leader>+', ':lua NTGlobal["window"]:change_height(2)<CR>', opts)
+map('n', '<leader>-', ':lua NTGlobal["window"]:change_height(-2)<CR>', opts)
+
+-----------------------
+------ BARBAR ---------
+-----------------------
+
+vim.g.bufferline = {
+  animation = true,
+  auto_hide = false,
+  tabpages = true,
+  closable = true,
+  clickable = true,
+  icons = true,
+  icon_custom_colors = false,
+  icon_separator_active = '▎',
+  icon_separator_inactive = '▎',
+  icon_close_tab = '',
+  icon_close_tab_modified = '●',
+  icon_pinned = '車',
+  insert_at_end = false,
+  maximum_padding = 1,
+  maximum_length = 30,
+  semantic_letters = true,
+  letters = 'asdfjkl;ghnmxcvbziowerutyqpASDFJKLGHNMXCVBZIOWERUTYQP',
+  no_name_title = nil,
+}
+
+
+---------------------
+-------FELINE--------
+
+require('feline').setup()
+
+---------------------
+-----COLORIZER-------
+require 'colorizer'.setup {
+  '*'; }
